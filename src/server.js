@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-import { getKit, formatBRL } from './kits.js';
+import { getKit, formatBRL, kitView } from './kits.js';
 import { validateCheckout } from './validation.js';
 import { createPix, verifyWebhookSignature, PinPayError } from './pinpay.js';
 import {
@@ -96,7 +96,7 @@ app.get('/api/kit/:id', (req, res) => {
   const kit = getKit(String(req.params.id || ''));
   if (!kit) return res.status(404).json({ error: 'not_found' });
   res.set('Cache-Control', 'public, max-age=300');
-  res.json({ id: kit.id, nome: kit.nome, resumo: kit.resumo, amount: kit.amount, amount_brl: formatBRL(kit.amount) });
+  res.json(kitView(kit));
 });
 
 app.use('/assets', express.static(PUBLIC_DIR, { maxAge: '1h' }));

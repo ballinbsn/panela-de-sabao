@@ -2,185 +2,298 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
+<meta name="theme-color" content="#a9662f" />
 <title>Finalizar pedido — Naturalli</title>
 <style>
   :root{
-    --bg:#f4efe7; --card:#fff; --ink:#2b2622; --muted:#6f665c;
-    --line:#e4ddd1; --copper:#a9662f; --copper-dark:#8a5326;
-    --ok:#1f7a44; --err:#b3261e; --stone:#2f2a26;
-    --radius:14px;
+    --bg:#f5efe4; --card:#ffffff; --ink:#2a2521; --muted:#736a5e;
+    --line:#e7dfd0; --copper:#a9662f; --copper-2:#8a5326; --copper-soft:#f6ebde;
+    --green:#1f7a44; --green-soft:#e7f3ec; --err:#c0392b; --err-soft:#fdecea;
+    --stone:#2f2a26; --gold:#b9822f;
+    --r:16px; --r-sm:11px;
+    --shadow:0 1px 2px rgba(42,37,33,.05), 0 8px 24px rgba(42,37,33,.06);
   }
   *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
   body{margin:0;background:var(--bg);color:var(--ink);
-    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  .wrap{max-width:480px;margin:0 auto;padding:0 16px 48px}
-  header{display:flex;align-items:center;justify-content:center;padding:14px 0;border-bottom:1px solid var(--line)}
-  header b{letter-spacing:.22em;font-weight:800;font-size:15px;color:var(--stone)}
-  h1{font-size:19px;margin:20px 0 4px}
-  .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding-bottom:calc(env(safe-area-inset-bottom) + 8px)}
+  .wrap{max-width:440px;margin:0 auto;padding:0 14px 40px}
+  a{color:var(--copper)}
 
-  .summary{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px;margin:14px 0 20px;display:flex;gap:12px;align-items:flex-start}
-  .summary .nome{font-weight:700}
-  .summary .res{color:var(--muted);font-size:13px;margin-top:2px}
-  .summary .val{margin-left:auto;text-align:right;font-weight:800;font-size:18px;white-space:nowrap}
-  .summary .val small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+  header{display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:14px}
+  header b{letter-spacing:.24em;font-weight:800;font-size:14px;color:var(--stone)}
+  .secure{display:flex;align-items:center;justify-content:center;gap:6px;
+    font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .secure b{color:var(--green);font-weight:700}
 
-  form{display:grid;gap:12px}
-  .row{display:grid;gap:12px}
-  @media(min-width:400px){.row.two{grid-template-columns:1fr 1fr}.row.cep{grid-template-columns:1fr 1.4fr}.row.num{grid-template-columns:1fr 1.6fr}.row.city{grid-template-columns:1fr 84px}}
-  label{font-size:13px;font-weight:600;display:block;margin-bottom:5px}
-  input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--ink)}
-  input:focus{outline:2px solid var(--copper);outline-offset:0;border-color:var(--copper)}
-  input[aria-invalid="true"]{border-color:var(--err)}
-  .fielderr{color:var(--err);font-size:12px;margin-top:4px;min-height:0}
-  fieldset{border:0;padding:0;margin:8px 0 0}
-  legend{font-weight:700;font-size:14px;margin-bottom:8px;padding:0}
+  h1{font-size:20px;line-height:1.25;margin:0 0 3px;letter-spacing:-.01em}
+  .lead{color:var(--muted);font-size:14px;margin:0 0 16px}
 
-  button.cta{margin-top:8px;width:100%;border:0;border-radius:999px;padding:15px;
-    background:linear-gradient(180deg,var(--copper),var(--copper-dark));color:#fff;
-    font-size:17px;font-weight:800;cursor:pointer}
-  button.cta:disabled{opacity:.6;cursor:progress}
+  /* ---------- card do produto ---------- */
+  .product{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+  .product.destaque{border-color:var(--copper);box-shadow:0 0 0 1px var(--copper), var(--shadow)}
+  .selo{position:absolute;top:0;right:0;background:linear-gradient(135deg,var(--gold),var(--copper));
+    color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:5px 12px;
+    border-bottom-left-radius:12px}
+  .p-top{display:flex;gap:13px;align-items:center}
+  .p-emoji{flex:0 0 auto;width:56px;height:56px;border-radius:14px;background:var(--copper-soft);
+    display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1}
+  .p-name{font-weight:800;font-size:16px;line-height:1.25}
+  .p-resumo{color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.4}
 
-  .note{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
-  .formerr{background:#fdecea;border:1px solid #f5c6c2;color:#7d1a14;border-radius:10px;
-    padding:10px 12px;font-size:14px;display:none}
+  .price{margin-top:14px;display:flex;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .price .de{color:var(--muted);text-decoration:line-through;font-size:14px}
+  .price .now{font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--stone)}
+  .price .tag{font-size:12px;color:var(--muted)}
+  .badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;
+    padding:5px 10px;border-radius:999px;white-space:nowrap}
+  .pill.save{background:var(--green-soft);color:var(--green)}
+  .pill.unit{background:var(--copper-soft);color:var(--copper-2)}
 
-  /* --- tela do PIX --- */
-  #pix{display:none;text-align:center}
-  #pix .qrbox{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:12px 0}
-  #pix img{width:230px;height:230px;image-rendering:pixelated}
-  .copybox{display:flex;gap:8px;margin-top:8px}
-  .copybox input{font-size:12px;color:var(--muted)}
-  .copybox button{white-space:nowrap;border:1px solid var(--copper);background:#fff;color:var(--copper);
-    font-weight:700;border-radius:10px;padding:0 14px;cursor:pointer}
-  .status{margin-top:14px;font-weight:600}
-  .status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--copper);margin-right:6px;animation:pulse 1.2s infinite}
-  @keyframes pulse{50%{opacity:.3}}
-  #paid{display:none;text-align:center;padding:24px 0}
-  #paid .check{font-size:44px}
-  #expired{display:none;text-align:center;padding:16px 0;color:var(--muted)}
-  .timer{font-variant-numeric:tabular-nums;font-weight:700}
+  /* ---------- entrega + confiança ---------- */
+  .ship{display:flex;align-items:center;gap:10px;background:var(--green-soft);
+    border:1px solid #cfe6d8;border-radius:var(--r-sm);padding:11px 13px;margin-bottom:12px}
+  .ship .ico{font-size:19px}
+  .ship b{color:var(--green)}
+  .ship span{font-size:13px;color:#2f5c43;line-height:1.35}
+
+  .trust{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px}
+  .trust div{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);
+    padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--ink);line-height:1.3}
+  .trust .e{display:block;font-size:17px;margin-bottom:3px}
+
+  /* ---------- formulário ---------- */
+  form{display:grid;gap:13px}
+  .group{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:15px}
+  .group h2{font-size:13px;font-weight:800;letter-spacing:.02em;margin:0 0 12px;
+    display:flex;align-items:center;gap:7px;color:var(--stone)}
+  .group h2 .n{width:20px;height:20px;border-radius:50%;background:var(--copper);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  .fields{display:grid;gap:11px}
+  .rowg{display:grid;gap:11px}
+  @media(min-width:390px){
+    .rowg.two{grid-template-columns:1fr 1fr}
+    .rowg.cep{grid-template-columns:120px 1fr}
+    .rowg.num{grid-template-columns:110px 1fr}
+    .rowg.city{grid-template-columns:1fr 76px}
+  }
+  label{font-size:12.5px;font-weight:600;color:var(--ink);display:block;margin-bottom:5px}
+  input{width:100%;padding:12px 12px;border:1.5px solid var(--line);border-radius:10px;
+    font-size:16px;background:#fff;color:var(--ink);transition:border-color .12s, box-shadow .12s}
+  input::placeholder{color:#b7ac9c}
+  input:focus{outline:none;border-color:var(--copper);box-shadow:0 0 0 3px var(--copper-soft)}
+  input[aria-invalid="true"]{border-color:var(--err);box-shadow:0 0 0 3px var(--err-soft)}
+  .fe{color:var(--err);font-size:11.5px;margin-top:4px}
+
+  .cta{margin-top:4px;width:100%;border:0;border-radius:999px;padding:16px;cursor:pointer;
+    background:linear-gradient(180deg,var(--copper),var(--copper-2));color:#fff;
+    font-size:17px;font-weight:800;letter-spacing:.01em;
+    box-shadow:0 6px 18px rgba(169,102,47,.32);transition:transform .08s, opacity .15s}
+  .cta:active{transform:translateY(1px)}
+  .cta:disabled{opacity:.65;cursor:progress;box-shadow:none}
+  .cta .sm{display:block;font-size:11.5px;font-weight:600;opacity:.9;margin-top:2px}
+
+  .foot{font-size:11.5px;color:var(--muted);text-align:center;margin-top:12px;
+    display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.4}
+  .formerr{display:none;background:var(--err-soft);border:1px solid #f2c4bd;color:#8c241a;
+    border-radius:10px;padding:11px 13px;font-size:13.5px;margin-bottom:4px}
+
+  /* ---------- tela do PIX ---------- */
+  #pix,#paid,#expired{display:none}
+  #pix{text-align:center}
+  .qrcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:18px;margin:14px 0}
+  .qrcard img{width:232px;height:232px;image-rendering:pixelated;border-radius:8px}
+  .qrcard .amt{font-size:24px;font-weight:800;color:var(--stone);margin-top:4px}
+  .copy-wrap{display:flex;gap:8px;margin-top:6px}
+  .copy-wrap input{font-size:12px;color:var(--muted);letter-spacing:.02em}
+  .copy-btn{white-space:nowrap;border:1.5px solid var(--copper);background:#fff;color:var(--copper);
+    font-weight:800;border-radius:10px;padding:0 16px;cursor:pointer;font-size:14px}
+  .copy-btn.ok{background:var(--green);border-color:var(--green);color:#fff}
+  .await{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;
+    font-weight:700;color:var(--stone)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--copper);animation:pulse 1.1s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+  .timer-line{font-size:13px;color:var(--muted);margin-top:6px}
+  .timer{font-variant-numeric:tabular-nums;font-weight:800;color:var(--copper)}
+  .reassure{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.5}
+  .steps{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:9px;text-align:left}
+  .steps li{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);
+    padding:11px 13px;font-size:13.5px;display:flex;gap:9px;align-items:flex-start}
+  .steps .e{font-size:17px;line-height:1.2}
+
+  #paid,#expired{text-align:center;padding:22px 4px}
+  #paid .big{font-size:46px}
+  #paid h1{margin-top:8px}
+  .ok-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-soft);
+    color:var(--green);font-weight:800;font-size:13px;padding:6px 14px;border-radius:999px;margin-top:6px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><b>NATURALLI</b></header>
+  <header>🍲 <b>NATURALLI</b></header>
+  <p class="secure">🔒 Pagamento <b>100% seguro</b> · via Pix · aprovação na hora</p>
 
-  <h1>Finalizar pedido</h1>
-  <p class="sub">Pagamento à vista no PIX. Aprovação na hora.</p>
+  <h1 id="h-title">Finalizar pedido</h1>
+  <p class="lead">Preencha seus dados, gere o Pix e pague pelo app do banco.</p>
 
-  <div class="summary" id="summary" hidden>
-    <div>
-      <div class="nome" id="s-nome">—</div>
-      <div class="res" id="s-res"></div>
+  <!-- card do produto -->
+  <section class="product" id="product" hidden>
+    <span class="selo" id="p-selo" hidden></span>
+    <div class="p-top">
+      <div class="p-emoji" id="p-emoji">🛒</div>
+      <div>
+        <div class="p-name" id="p-name">—</div>
+        <div class="p-resumo" id="p-resumo"></div>
+      </div>
     </div>
-    <div class="val" id="s-val">—<small>no PIX</small></div>
+    <div class="price">
+      <span class="de" id="p-de" hidden></span>
+      <span class="now" id="p-now">—</span>
+      <span class="tag">à vista no Pix</span>
+    </div>
+    <div class="badges" id="p-badges"></div>
+  </section>
+
+  <div class="ship">
+    <span class="ico">🚚</span>
+    <span><b>Frete grátis</b> para todo o Brasil · chega em <b id="ship-prazo">3 a 7 dias úteis</b></span>
+  </div>
+
+  <div class="trust">
+    <div><span class="e">✅</span>Garantia vitalícia</div>
+    <div><span class="e">🔄</span>Devolução grátis</div>
+    <div><span class="e">🏭</span>Direto de fábrica</div>
   </div>
 
   <div class="formerr" id="formerr"></div>
 
   <form id="form" novalidate>
-    <div>
-      <label for="name">Nome completo</label>
-      <input id="name" name="name" autocomplete="name" required />
-      <div class="fielderr" data-for="name"></div>
-    </div>
-    <div class="row two">
-      <div>
-        <label for="email">E-mail</label>
-        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required />
-        <div class="fielderr" data-for="email"></div>
+    <div class="group">
+      <h2><span class="n">1</span> Seus dados</h2>
+      <div class="fields">
+        <div>
+          <label for="name">Nome completo</label>
+          <input id="name" name="name" autocomplete="name" required />
+          <div class="fe" data-for="name"></div>
+        </div>
+        <div class="rowg two">
+          <div>
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required />
+            <div class="fe" data-for="email"></div>
+          </div>
+          <div>
+            <label for="phone">Celular (com DDD)</label>
+            <input id="phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="(11) 99999-9999" required />
+            <div class="fe" data-for="phone"></div>
+          </div>
+        </div>
+        <div>
+          <label for="cpf">CPF</label>
+          <input id="cpf" name="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required />
+          <div class="fe" data-for="cpf"></div>
+        </div>
       </div>
-      <div>
-        <label for="phone">Telefone (com DDD)</label>
-        <input id="phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="(11) 99999-9999" required />
-        <div class="fielderr" data-for="phone"></div>
-      </div>
-    </div>
-    <div>
-      <label for="cpf">CPF</label>
-      <input id="cpf" name="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required />
-      <div class="fielderr" data-for="cpf"></div>
     </div>
 
-    <fieldset>
-      <legend>Endereço de entrega</legend>
-      <div class="row cep">
-        <div>
-          <label for="cep">CEP</label>
-          <input id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" required />
-          <div class="fielderr" data-for="cep"></div>
+    <div class="group">
+      <h2><span class="n">2</span> Endereço de entrega</h2>
+      <div class="fields">
+        <div class="rowg cep">
+          <div>
+            <label for="cep">CEP</label>
+            <input id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" required />
+            <div class="fe" data-for="cep"></div>
+          </div>
+          <div>
+            <label for="street">Rua / logradouro</label>
+            <input id="street" name="street" autocomplete="address-line1" required />
+            <div class="fe" data-for="street"></div>
+          </div>
+        </div>
+        <div class="rowg num">
+          <div>
+            <label for="number">Número</label>
+            <input id="number" name="number" inputmode="numeric" required />
+            <div class="fe" data-for="number"></div>
+          </div>
+          <div>
+            <label for="complement">Complemento <span style="color:var(--muted);font-weight:400">(opcional)</span></label>
+            <input id="complement" name="complement" autocomplete="address-line2" />
+          </div>
         </div>
         <div>
-          <label for="street">Rua / logradouro</label>
-          <input id="street" name="street" autocomplete="address-line1" required />
-          <div class="fielderr" data-for="street"></div>
+          <label for="district">Bairro</label>
+          <input id="district" name="district" required />
+          <div class="fe" data-for="district"></div>
+        </div>
+        <div class="rowg city">
+          <div>
+            <label for="city">Cidade</label>
+            <input id="city" name="city" autocomplete="address-level2" required />
+            <div class="fe" data-for="city"></div>
+          </div>
+          <div>
+            <label for="state">UF</label>
+            <input id="state" name="state" maxlength="2" autocomplete="address-level1" placeholder="SP" required />
+            <div class="fe" data-for="state"></div>
+          </div>
         </div>
       </div>
-      <div class="row num">
-        <div>
-          <label for="number">Número</label>
-          <input id="number" name="number" inputmode="numeric" required />
-          <div class="fielderr" data-for="number"></div>
-        </div>
-        <div>
-          <label for="complement">Complemento (opcional)</label>
-          <input id="complement" name="complement" autocomplete="address-line2" />
-        </div>
-      </div>
-      <div>
-        <label for="district">Bairro</label>
-        <input id="district" name="district" required />
-        <div class="fielderr" data-for="district"></div>
-      </div>
-      <div class="row city">
-        <div>
-          <label for="city">Cidade</label>
-          <input id="city" name="city" autocomplete="address-level2" required />
-          <div class="fielderr" data-for="city"></div>
-        </div>
-        <div>
-          <label for="state">UF</label>
-          <input id="state" name="state" maxlength="2" autocomplete="address-level1" placeholder="SP" required />
-          <div class="fielderr" data-for="state"></div>
-        </div>
-      </div>
-    </fieldset>
+    </div>
 
-    <button type="submit" class="cta" id="submit">Gerar PIX</button>
-    <p class="note">Seus dados são usados só para emitir a cobrança e entregar o pedido.</p>
+    <button type="submit" class="cta" id="submit">
+      Gerar Pix
+      <span class="sm" id="cta-sm">pagamento à vista</span>
+    </button>
+    <p class="foot">🔒 Usamos seus dados só para emitir a cobrança e entregar o pedido.</p>
   </form>
 
-  <!-- tela do PIX -->
+  <!-- PIX -->
   <section id="pix">
-    <h1>Escaneie para pagar</h1>
-    <p class="sub">Abra o app do seu banco, escolha PIX &gt; Ler QR Code.</p>
-    <div class="qrbox">
-      <img id="qrimg" alt="QR Code PIX" />
+    <h1>Escaneie e pague ⚡</h1>
+    <p class="lead">Abra o app do seu banco → Pix → Ler QR Code. Ou use o código copia e cola.</p>
+    <div class="qrcard">
+      <img id="qrimg" alt="QR Code do Pix" />
+      <div class="amt" id="pix-amt"></div>
     </div>
-    <label style="font-size:13px;font-weight:600">PIX copia e cola</label>
-    <div class="copybox">
-      <input id="brcode" readonly />
-      <button type="button" id="copy">Copiar</button>
+    <label style="font-size:12.5px;font-weight:600;text-align:left;display:block">Pix copia e cola</label>
+    <div class="copy-wrap">
+      <input id="brcode" readonly aria-label="Código Pix copia e cola" />
+      <button type="button" class="copy-btn" id="copy">Copiar</button>
     </div>
-    <p class="status"><span class="dot"></span><span id="statustxt">Aguardando pagamento…</span></p>
-    <p class="sub">Expira em <span class="timer" id="timer">--:--</span></p>
+    <div class="await"><span class="dot"></span> Aguardando pagamento…</div>
+    <div class="timer-line">Este Pix expira em <span class="timer" id="timer">--:--</span></div>
+    <p class="reassure">Assim que o seu banco confirmar, esta tela atualiza sozinha. Pode deixar aberta. 🍲</p>
   </section>
 
+  <!-- PAGO -->
   <section id="paid">
-    <div class="check">✅</div>
+    <div class="big">🎉</div>
     <h1>Pagamento confirmado!</h1>
-    <p class="sub">Você vai receber os detalhes por e-mail. Já vamos preparar seu envio.</p>
-    <p class="sub" id="redir"></p>
+    <span class="ok-badge">✅ Pedido garantido</span>
+    <ul class="steps">
+      <li><span class="e">📧</span><span>Você vai receber a confirmação e os detalhes no seu e-mail.</span></li>
+      <li><span class="e">📦</span><span>Já vamos preparar seu envio — chega em <b id="paid-prazo">3 a 7 dias úteis</b>.</span></li>
+      <li><span class="e">💬</span><span>Qualquer dúvida: <a href="mailto:contato@naturalli.shop">contato@naturalli.shop</a></span></li>
+    </ul>
+    <p class="reassure" id="redir"></p>
   </section>
 
+  <!-- EXPIRADO -->
   <section id="expired">
-    <h1>O PIX expirou</h1>
-    <p>Sem problema — gere um novo para concluir o pedido.</p>
-    <button type="button" class="cta" onclick="location.reload()">Gerar novo PIX</button>
+    <div style="font-size:40px">⌛</div>
+    <h1>O Pix expirou</h1>
+    <p class="lead">Sem problema — é só gerar um novo para concluir o pedido.</p>
+    <button type="button" class="cta" onclick="location.reload()">Gerar novo Pix</button>
   </section>
 </div>
 
@@ -191,41 +304,73 @@
   const kitId = params.get('kit') || '';
   const form = $('#form');
   const formErr = $('#formerr');
+  const digits = (v) => String(v).replace(/\D/g, '');
 
-  // ---- resumo do kit ----
+  // ---------- resumo do kit ----------
   fetch('/api/kit/' + encodeURIComponent(kitId))
     .then((r) => (r.ok ? r.json() : Promise.reject()))
     .then((k) => {
-      $('#s-nome').textContent = k.nome;
-      $('#s-res').textContent = k.resumo;
-      $('#s-val').innerHTML = k.amount_brl + '<small>no PIX</small>';
-      $('#summary').hidden = false;
+      document.title = k.nome + ' — Naturalli';
+      $('#h-title').textContent = 'Finalizar: ' + k.nome;
+      $('#p-emoji').textContent = k.emoji;
+      $('#p-name').textContent = k.nome;
+      $('#p-resumo').textContent = k.resumo;
+      $('#p-now').textContent = k.amount_brl;
+      $('#pix-amt').textContent = k.amount_brl;
+      $('#cta-sm').textContent = 'pague ' + k.amount_brl + ' à vista no Pix';
+      $('#submit').firstChild.textContent = 'Gerar Pix · ' + k.amount_brl + ' ';
+      if (k.entrega) {
+        $('#ship-prazo').textContent = k.entrega;
+        $('#paid-prazo').textContent = k.entrega;
+      }
+      if (k.de_brl) { $('#p-de').textContent = k.de_brl; $('#p-de').hidden = false; }
+      if (k.selo) { $('#p-selo').textContent = k.selo; $('#p-selo').hidden = false; }
+      if (k.destaque) $('#product').classList.add('destaque');
+
+      const badges = $('#p-badges');
+      if (k.desconto_pct) {
+        const b = document.createElement('span');
+        b.className = 'pill save';
+        b.textContent = '🔥 ' + k.desconto_pct + '% OFF · economize ' + k.economia_brl;
+        badges.appendChild(b);
+      }
+      if (k.por_unidade_brl) {
+        const b = document.createElement('span');
+        b.className = 'pill unit';
+        b.textContent = k.por_unidade_brl + ' por panela';
+        badges.appendChild(b);
+      }
+      $('#product').hidden = false;
     })
     .catch(() => {
       document.body.innerHTML =
-        '<div class="wrap"><p style="padding:48px 16px;text-align:center;color:#6f665c">' +
-        'Produto não encontrado. Volte à loja e escolha um kit.</p></div>';
+        '<div class="wrap"><header>🍲 <b>NATURALLI</b></header>' +
+        '<p style="padding:40px 16px;text-align:center;color:#736a5e">Produto não encontrado. ' +
+        'Volte à loja e escolha um kit.</p></div>';
     });
 
-  // ---- máscaras leves ----
-  const digits = (v) => v.replace(/\D/g, '');
+  // ---------- máscaras ----------
   const mask = (el, fn) => el.addEventListener('input', () => {
-    const p = el.selectionStart === el.value.length;
+    const atEnd = el.selectionStart === el.value.length;
     el.value = fn(digits(el.value));
-    if (p) el.selectionStart = el.selectionEnd = el.value.length;
+    if (atEnd) el.selectionStart = el.selectionEnd = el.value.length;
   });
-  mask($('#cpf'), (d) => d.slice(0,11)
-    .replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3')
-    .replace(/\.(\d{3})(\d)/,'.$1-$2'));
+  mask($('#cpf'), (d) => d.slice(0, 11)
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1-$2'));
   mask($('#phone'), (d) => {
-    d = d.slice(0,11);
-    if (d.length <= 10) return d.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
-    return d.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
+    d = d.slice(0, 11);
+    return d.length <= 10
+      ? d.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2')
+      : d.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');
   });
-  mask($('#cep'), (d) => d.slice(0,8).replace(/^(\d{5})(\d)/,'$1-$2'));
-  $('#state').addEventListener('input', () => { $('#state').value = $('#state').value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,2); });
+  mask($('#cep'), (d) => d.slice(0, 8).replace(/^(\d{5})(\d)/, '$1-$2'));
+  $('#state').addEventListener('input', () => {
+    $('#state').value = $('#state').value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2);
+  });
 
-  // ---- autofill de endereço via ViaCEP (best effort) ----
+  // ---------- autofill CEP (ViaCEP, best effort) ----------
   $('#cep').addEventListener('blur', async () => {
     const cep = digits($('#cep').value);
     if (cep.length !== 8) return;
@@ -237,64 +382,61 @@
       if (j.bairro) $('#district').value = j.bairro;
       if (j.localidade) $('#city').value = j.localidade;
       if (j.uf) $('#state').value = j.uf;
-      $('#number').focus();
+      (j.logradouro ? $('#number') : $('#street')).focus();
     } catch {}
   });
 
-  const setFieldErr = (name, msg) => {
-    const box = document.querySelector('.fielderr[data-for="' + name + '"]');
+  const setFe = (name, msg) => {
+    const box = document.querySelector('.fe[data-for="' + name + '"]');
     const input = form.elements[name];
     if (box) box.textContent = msg || '';
     if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false');
   };
   const clearErrs = () => {
     formErr.style.display = 'none';
-    document.querySelectorAll('.fielderr').forEach((b) => (b.textContent = ''));
+    document.querySelectorAll('.fe').forEach((b) => (b.textContent = ''));
     document.querySelectorAll('[aria-invalid]').forEach((i) => i.setAttribute('aria-invalid', 'false'));
   };
 
-  // ---- submit ----
+  // ---------- submit ----------
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrs();
     const btn = $('#submit');
+    const label = btn.firstChild.textContent;
     btn.disabled = true;
-    btn.textContent = 'Gerando PIX…';
+    btn.firstChild.textContent = 'Gerando Pix… ';
 
     const body = {
       kit: kitId,
-      name: form.name.value,
-      email: form.email.value,
-      cpf: digits(form.cpf.value),
-      phone: digits(form.phone.value),
-      cep: digits(form.cep.value),
-      street: form.street.value,
-      number: form.number.value,
-      complement: form.complement.value,
-      district: form.district.value,
-      city: form.city.value,
-      state: form.state.value,
+      name: form.name.value, email: form.email.value,
+      cpf: digits(form.cpf.value), phone: digits(form.phone.value),
+      cep: digits(form.cep.value), street: form.street.value, number: form.number.value,
+      complement: form.complement.value, district: form.district.value,
+      city: form.city.value, state: form.state.value,
     };
 
     try {
       const r = await fetch('/api/pay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
       const data = await r.json().catch(() => ({}));
 
       if (r.status === 400 && data.fields) {
-        for (const [k, m] of Object.entries(data.fields)) setFieldErr(k, m);
+        for (const [k, m] of Object.entries(data.fields)) setFe(k, m);
+        const first = document.querySelector('[aria-invalid="true"]');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
         formErr.textContent = 'Confira os campos destacados.';
         formErr.style.display = 'block';
         return;
       }
       if (!r.ok) {
         formErr.textContent = data.error === 'payment_declined'
-          ? 'Pagamento não autorizado. Tente outro cadastro ou fale com o suporte.'
-          : 'Não foi possível gerar o PIX agora. Tente de novo em instantes.';
+          ? 'Pagamento não autorizado. Confira o CPF ou fale com o suporte.'
+          : 'Não deu para gerar o Pix agora. Tente de novo em alguns segundos.';
         formErr.style.display = 'block';
+        formErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
       showPix(data);
@@ -303,31 +445,40 @@
       formErr.style.display = 'block';
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Gerar PIX';
+      btn.firstChild.textContent = label;
     }
   });
 
-  // ---- tela do PIX + polling ----
+  // ---------- tela do Pix + polling ----------
   let poll, tick;
+  const stop = () => { clearInterval(poll); clearInterval(tick); };
+
   function showPix(data) {
     form.style.display = 'none';
-    $('#summary').style.display = 'none';
+    $('#product').style.display = 'none';
+    document.querySelector('.ship').style.display = 'none';
+    document.querySelector('.trust').style.display = 'none';
+    $('.lead') && ($('.lead').style.display = 'none');
+    window.scrollTo(0, 0);
     $('#pix').style.display = 'block';
     $('#qrimg').src = data.qr_code_url || '';
+    $('#qrimg').onerror = () => { $('#qrimg').style.display = 'none'; };
     $('#brcode').value = data.qr_code || '';
+    $('#pix-amt').textContent = data.amount_brl || $('#pix-amt').textContent;
 
     $('#copy').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(data.qr_code); $('#copy').textContent = 'Copiado!'; }
-      catch { $('#brcode').select(); document.execCommand('copy'); $('#copy').textContent = 'Copiado!'; }
-      setTimeout(() => ($('#copy').textContent = 'Copiar'), 2000);
+      const btn = $('#copy');
+      try { await navigator.clipboard.writeText(data.qr_code); }
+      catch { $('#brcode').select(); document.execCommand('copy'); }
+      btn.textContent = '✓ Copiado'; btn.classList.add('ok');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('ok'); }, 2200);
     });
 
-    const expiresAt = data.expires_at ? new Date(data.expires_at).getTime() : Date.now() + 3600e3;
+    const expAt = data.expires_at ? new Date(data.expires_at).getTime() : Date.now() + 3600e3;
     tick = setInterval(() => {
-      const left = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
-      const mm = String(Math.floor(left / 60)).padStart(2, '0');
-      const ss = String(left % 60).padStart(2, '0');
-      $('#timer').textContent = mm + ':' + ss;
+      const left = Math.max(0, Math.floor((expAt - Date.now()) / 1000));
+      $('#timer').textContent =
+        String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
       if (left <= 0) { stop(); $('#pix').style.display = 'none'; $('#expired').style.display = 'block'; }
     }, 1000);
 
@@ -340,9 +491,10 @@
           stop();
           $('#pix').style.display = 'none';
           $('#paid').style.display = 'block';
+          window.scrollTo(0, 0);
           if (o.redirect_url) {
-            $('#redir').textContent = 'Redirecionando…';
-            setTimeout(() => (location.href = o.redirect_url), 3500);
+            $('#redir').textContent = 'Redirecionando para a loja…';
+            setTimeout(() => (location.href = o.redirect_url), 3800);
           }
         } else if (['failed', 'expired', 'cancelled', 'refunded'].includes(o.status)) {
           stop();
@@ -354,7 +506,6 @@
     poll = setInterval(check, 4000);
     check();
   }
-  function stop() { clearInterval(poll); clearInterval(tick); }
 })();
 </script>
 </body>
