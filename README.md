@@ -27,8 +27,12 @@ public/
 | `PINPAY_WEBHOOK_SECRET` | `whsec_…` — Signing Secret do webhook (painel PinPay → Webhooks). |
 | `PINPAY_WEBHOOK_URL` | URL pública deste app + `/api/webhooks/pinpay`. |
 | `DATABASE_URL` | injetada automaticamente pelo plugin PostgreSQL do Railway. |
-| `SUCCESS_REDIRECT_URL` | para onde mandar o cliente após pagar (ex: `https://naturalli.shop/obrigado`). |
-| `STORE_ORIGIN` | domínio da sua loja (ex: `https://naturalli.shop`). |
+| `SUCCESS_REDIRECT_URL` | para onde mandar o cliente após pagar (ex: `https://sua-loja.com/obrigado`). Vazio = fica na tela de confirmação. |
+| `STORE_ORIGIN` | domínio da sua loja, usado só no redirect de `GET /` (ex: `https://sua-loja.com`). Vazio = `GET /` responde texto simples. |
+
+> **Domínio:** nada de domínio fica fixo no código. Rode em `*.up.railway.app`, num
+> subdomínio próprio (`checkout.sua-loja.com`), ou onde quiser — basta ajustar
+> `PINPAY_WEBHOOK_URL` (e re-cadastrar o webhook na PinPay) e os links da landing page.
 
 ## Deploy no Railway (passo a passo)
 

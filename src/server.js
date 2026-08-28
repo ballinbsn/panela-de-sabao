@@ -76,13 +76,18 @@ setInterval(() => {
 app.get('/healthz', (_req, res) => res.status(200).json({ ok: true }));
 
 app.get('/', (_req, res) => {
-  res.redirect(302, process.env.STORE_ORIGIN || 'https://naturalli.shop');
+  if (process.env.STORE_ORIGIN) return res.redirect(302, process.env.STORE_ORIGIN);
+  res.type('text').send('naturalli-checkout API — ok');
 });
 
 // GET /checkout?kit=kit5  -> página de checkout
 app.get('/checkout', (req, res) => {
   const kit = getKit(String(req.query.kit || ''));
-  if (!kit) return res.redirect(302, process.env.STORE_ORIGIN || 'https://naturalli.shop');
+  if (!kit) {
+    return process.env.STORE_ORIGIN
+      ? res.redirect(302, process.env.STORE_ORIGIN)
+      : res.status(404).type('text').send('kit inválido');
+  }
   res.sendFile(path.join(PUBLIC_DIR, 'checkout.html'));
 });
 

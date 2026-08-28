@@ -201,7 +201,11 @@
       $('#s-val').innerHTML = k.amount_brl + '<small>no PIX</small>';
       $('#summary').hidden = false;
     })
-    .catch(() => { location.href = 'https://naturalli.shop'; });
+    .catch(() => {
+      document.body.innerHTML =
+        '<div class="wrap"><p style="padding:48px 16px;text-align:center;color:#6f665c">' +
+        'Produto não encontrado. Volte à loja e escolha um kit.</p></div>';
+    });
 
   // ---- máscaras leves ----
   const digits = (v) => v.replace(/\D/g, '');
