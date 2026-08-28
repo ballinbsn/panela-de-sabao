@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Finalizar pedido — Naturalli</title>
+<style>
+  :root{
+    --bg:#f4efe7; --card:#fff; --ink:#2b2622; --muted:#6f665c;
+    --line:#e4ddd1; --copper:#a9662f; --copper-dark:#8a5326;
+    --ok:#1f7a44; --err:#b3261e; --stone:#2f2a26;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:480px;margin:0 auto;padding:0 16px 48px}
+  header{display:flex;align-items:center;justify-content:center;padding:14px 0;border-bottom:1px solid var(--line)}
+  header b{letter-spacing:.22em;font-weight:800;font-size:15px;color:var(--stone)}
+  h1{font-size:19px;margin:20px 0 4px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+
+  .summary{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px;margin:14px 0 20px;display:flex;gap:12px;align-items:flex-start}
+  .summary .nome{font-weight:700}
+  .summary .res{color:var(--muted);font-size:13px;margin-top:2px}
+  .summary .val{margin-left:auto;text-align:right;font-weight:800;font-size:18px;white-space:nowrap}
+  .summary .val small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+
+  form{display:grid;gap:12px}
+  .row{display:grid;gap:12px}
+  @media(min-width:400px){.row.two{grid-template-columns:1fr 1fr}.row.cep{grid-template-columns:1fr 1.4fr}.row.num{grid-template-columns:1fr 1.6fr}.row.city{grid-template-columns:1fr 84px}}
+  label{font-size:13px;font-weight:600;display:block;margin-bottom:5px}
+  input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--ink)}
+  input:focus{outline:2px solid var(--copper);outline-offset:0;border-color:var(--copper)}
+  input[aria-invalid="true"]{border-color:var(--err)}
+  .fielderr{color:var(--err);font-size:12px;margin-top:4px;min-height:0}
+  fieldset{border:0;padding:0;margin:8px 0 0}
+  legend{font-weight:700;font-size:14px;margin-bottom:8px;padding:0}
+
+  button.cta{margin-top:8px;width:100%;border:0;border-radius:999px;padding:15px;
+    background:linear-gradient(180deg,var(--copper),var(--copper-dark));color:#fff;
+    font-size:17px;font-weight:800;cursor:pointer}
+  button.cta:disabled{opacity:.6;cursor:progress}
+
+  .note{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+  .formerr{background:#fdecea;border:1px solid #f5c6c2;color:#7d1a14;border-radius:10px;
+    padding:10px 12px;font-size:14px;display:none}
+
+  /* --- tela do PIX --- */
+  #pix{display:none;text-align:center}
+  #pix .qrbox{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:12px 0}
+  #pix img{width:230px;height:230px;image-rendering:pixelated}
+  .copybox{display:flex;gap:8px;margin-top:8px}
+  .copybox input{font-size:12px;color:var(--muted)}
+  .copybox button{white-space:nowrap;border:1px solid var(--copper);background:#fff;color:var(--copper);
+    font-weight:700;border-radius:10px;padding:0 14px;cursor:pointer}
+  .status{margin-top:14px;font-weight:600}
+  .status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--copper);margin-right:6px;animation:pulse 1.2s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+  #paid{display:none;text-align:center;padding:24px 0}
+  #paid .check{font-size:44px}
+  #expired{display:none;text-align:center;padding:16px 0;color:var(--muted)}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><b>NATURALLI</b></header>
+
+  <h1>Finalizar pedido</h1>
+  <p class="sub">Pagamento à vista no PIX. Aprovação na hora.</p>
+
+  <div class="summary" id="summary" hidden>
+    <div>
+      <div class="nome" id="s-nome">—</div>
+      <div class="res" id="s-res"></div>
+    </div>
+    <div class="val" id="s-val">—<small>no PIX</small></div>
+  </div>
+
+  <div class="formerr" id="formerr"></div>
+
+  <form id="form" novalidate>
+    <div>
+      <label for="name">Nome completo</label>
+      <input id="name" name="name" autocomplete="name" required />
+      <div class="fielderr" data-for="name"></div>
+    </div>
+    <div class="row two">
+      <div>
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required />
+        <div class="fielderr" data-for="email"></div>
+      </div>
+      <div>
+        <label for="phone">Telefone (com DDD)</label>
+        <input id="phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="(11) 99999-9999" required />
+        <div class="fielderr" data-for="phone"></div>
+      </div>
+    </div>
+    <div>
+      <label for="cpf">CPF</label>
+      <input id="cpf" name="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required />
+      <div class="fielderr" data-for="cpf"></div>
+    </div>
+
+    <fieldset>
+      <legend>Endereço de entrega</legend>
+      <div class="row cep">
+        <div>
+          <label for="cep">CEP</label>
+          <input id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" required />
+          <div class="fielderr" data-for="cep"></div>
+        </div>
+        <div>
+          <label for="street">Rua / logradouro</label>
+          <input id="street" name="street" autocomplete="address-line1" required />
+          <div class="fielderr" data-for="street"></div>
+        </div>
+      </div>
+      <div class="row num">
+        <div>
+          <label for="number">Número</label>
+          <input id="number" name="number" inputmode="numeric" required />
+          <div class="fielderr" data-for="number"></div>
+        </div>
+        <div>
+          <label for="complement">Complemento (opcional)</label>
+          <input id="complement" name="complement" autocomplete="address-line2" />
+        </div>
+      </div>
+      <div>
+        <label for="district">Bairro</label>
+        <input id="district" name="district" required />
+        <div class="fielderr" data-for="district"></div>
+      </div>
+      <div class="row city">
+        <div>
+          <label for="city">Cidade</label>
+          <input id="city" name="city" autocomplete="address-level2" required />
+          <div class="fielderr" data-for="city"></div>
+        </div>
+        <div>
+          <label for="state">UF</label>
+          <input id="state" name="state" maxlength="2" autocomplete="address-level1" placeholder="SP" required />
+          <div class="fielderr" data-for="state"></div>
+        </div>
+      </div>
+    </fieldset>
+
+    <button type="submit" class="cta" id="submit">Gerar PIX</button>
+    <p class="note">Seus dados são usados só para emitir a cobrança e entregar o pedido.</p>
+  </form>
+
+  <!-- tela do PIX -->
+  <section id="pix">
+    <h1>Escaneie para pagar</h1>
+    <p class="sub">Abra o app do seu banco, escolha PIX &gt; Ler QR Code.</p>
+    <div class="qrbox">
+      <img id="qrimg" alt="QR Code PIX" />
+    </div>
+    <label style="font-size:13px;font-weight:600">PIX copia e cola</label>
+    <div class="copybox">
+      <input id="brcode" readonly />
+      <button type="button" id="copy">Copiar</button>
+    </div>
+    <p class="status"><span class="dot"></span><span id="statustxt">Aguardando pagamento…</span></p>
+    <p class="sub">Expira em <span class="timer" id="timer">--:--</span></p>
+  </section>
+
+  <section id="paid">
+    <div class="check">✅</div>
+    <h1>Pagamento confirmado!</h1>
+    <p class="sub">Você vai receber os detalhes por e-mail. Já vamos preparar seu envio.</p>
+    <p class="sub" id="redir"></p>
+  </section>
+
+  <section id="expired">
+    <h1>O PIX expirou</h1>
+    <p>Sem problema — gere um novo para concluir o pedido.</p>
+    <button type="button" class="cta" onclick="location.reload()">Gerar novo PIX</button>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const params = new URLSearchParams(location.search);
+  const kitId = params.get('kit') || '';
+  const form = $('#form');
+  const formErr = $('#formerr');
+
+  // ---- resumo do kit ----
+  fetch('/api/kit/' + encodeURIComponent(kitId))
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((k) => {
+      $('#s-nome').textContent = k.nome;
+      $('#s-res').textContent = k.resumo;
+      $('#s-val').innerHTML = k.amount_brl + '<small>no PIX</small>';
+      $('#summary').hidden = false;
+    })
+    .catch(() => { location.href = 'https://naturalli.shop'; });
+
+  // ---- máscaras leves ----
+  const digits = (v) => v.replace(/\D/g, '');
+  const mask = (el, fn) => el.addEventListener('input', () => {
+    const p = el.selectionStart === el.value.length;
+    el.value = fn(digits(el.value));
+    if (p) el.selectionStart = el.selectionEnd = el.value.length;
+  });
+  mask($('#cpf'), (d) => d.slice(0,11)
+    .replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/,'.$1-$2'));
+  mask($('#phone'), (d) => {
+    d = d.slice(0,11);
+    if (d.length <= 10) return d.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
+    return d.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
+  });
+  mask($('#cep'), (d) => d.slice(0,8).replace(/^(\d{5})(\d)/,'$1-$2'));
+  $('#state').addEventListener('input', () => { $('#state').value = $('#state').value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,2); });
+
+  // ---- autofill de endereço via ViaCEP (best effort) ----
+  $('#cep').addEventListener('blur', async () => {
+    const cep = digits($('#cep').value);
+    if (cep.length !== 8) return;
+    try {
+      const r = await fetch('https://viacep.com.br/ws/' + cep + '/json/', { signal: AbortSignal.timeout(6000) });
+      const j = await r.json();
+      if (j.erro) return;
+      if (j.logradouro) $('#street').value = j.logradouro;
+      if (j.bairro) $('#district').value = j.bairro;
+      if (j.localidade) $('#city').value = j.localidade;
+      if (j.uf) $('#state').value = j.uf;
+      $('#number').focus();
+    } catch {}
+  });
+
+  const setFieldErr = (name, msg) => {
+    const box = document.querySelector('.fielderr[data-for="' + name + '"]');
+    const input = form.elements[name];
+    if (box) box.textContent = msg || '';
+    if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  };
+  const clearErrs = () => {
+    formErr.style.display = 'none';
+    document.querySelectorAll('.fielderr').forEach((b) => (b.textContent = ''));
+    document.querySelectorAll('[aria-invalid]').forEach((i) => i.setAttribute('aria-invalid', 'false'));
+  };
+
+  // ---- submit ----
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrs();
+    const btn = $('#submit');
+    btn.disabled = true;
+    btn.textContent = 'Gerando PIX…';
+
+    const body = {
+      kit: kitId,
+      name: form.name.value,
+      email: form.email.value,
+      cpf: digits(form.cpf.value),
+      phone: digits(form.phone.value),
+      cep: digits(form.cep.value),
+      street: form.street.value,
+      number: form.number.value,
+      complement: form.complement.value,
+      district: form.district.value,
+      city: form.city.value,
+      state: form.state.value,
+    };
+
+    try {
+      const r = await fetch('/api/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json().catch(() => ({}));
+
+      if (r.status === 400 && data.fields) {
+        for (const [k, m] of Object.entries(data.fields)) setFieldErr(k, m);
+        formErr.textContent = 'Confira os campos destacados.';
+        formErr.style.display = 'block';
+        return;
+      }
+      if (!r.ok) {
+        formErr.textContent = data.error === 'payment_declined'
+          ? 'Pagamento não autorizado. Tente outro cadastro ou fale com o suporte.'
+          : 'Não foi possível gerar o PIX agora. Tente de novo em instantes.';
+        formErr.style.display = 'block';
+        return;
+      }
+      showPix(data);
+    } catch {
+      formErr.textContent = 'Falha de conexão. Verifique a internet e tente de novo.';
+      formErr.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Gerar PIX';
+    }
+  });
+
+  // ---- tela do PIX + polling ----
+  let poll, tick;
+  function showPix(data) {
+    form.style.display = 'none';
+    $('#summary').style.display = 'none';
+    $('#pix').style.display = 'block';
+    $('#qrimg').src = data.qr_code_url || '';
+    $('#brcode').value = data.qr_code || '';
+
+    $('#copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(data.qr_code); $('#copy').textContent = 'Copiado!'; }
+      catch { $('#brcode').select(); document.execCommand('copy'); $('#copy').textContent = 'Copiado!'; }
+      setTimeout(() => ($('#copy').textContent = 'Copiar'), 2000);
+    });
+
+    const expiresAt = data.expires_at ? new Date(data.expires_at).getTime() : Date.now() + 3600e3;
+    tick = setInterval(() => {
+      const left = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+      const mm = String(Math.floor(left / 60)).padStart(2, '0');
+      const ss = String(left % 60).padStart(2, '0');
+      $('#timer').textContent = mm + ':' + ss;
+      if (left <= 0) { stop(); $('#pix').style.display = 'none'; $('#expired').style.display = 'block'; }
+    }, 1000);
+
+    const check = async () => {
+      try {
+        const r = await fetch('/api/order/' + data.order_id, { cache: 'no-store' });
+        if (!r.ok) return;
+        const o = await r.json();
+        if (o.paid) {
+          stop();
+          $('#pix').style.display = 'none';
+          $('#paid').style.display = 'block';
+          if (o.redirect_url) {
+            $('#redir').textContent = 'Redirecionando…';
+            setTimeout(() => (location.href = o.redirect_url), 3500);
+          }
+        } else if (['failed', 'expired', 'cancelled', 'refunded'].includes(o.status)) {
+          stop();
+          $('#pix').style.display = 'none';
+          $('#expired').style.display = 'block';
+        }
+      } catch {}
+    };
+    poll = setInterval(check, 4000);
+    check();
+  }
+  function stop() { clearInterval(poll); clearInterval(tick); }
+})();
+</script>
+</body>
+</html>
