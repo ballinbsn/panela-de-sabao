@@ -7,7 +7,7 @@ import { getKit, formatBRL, kitView } from './kits.js';
 import { validateCheckout } from './validation.js';
 import { createPix, verifyWebhookSignature, PinPayError } from './pinpay.js';
 import {
-  initSchema, createOrder, attachPix, setStatusById, getOrderPublic,
+  pool, initSchema, createOrder, attachPix, setStatusById, getOrderPublic,
   markPaidByPinpayId, setStatusByPinpayId, claimWebhook, releaseWebhook,
 } from './db.js';
 
@@ -74,6 +74,30 @@ setInterval(() => {
 
 // ---------- páginas ----------
 app.get('/healthz', (_req, res) => res.status(200).json({ ok: true }));
+
+// Diagnóstico temporário — sem segredos, só status. Remover depois.
+app.get('/api/_diag', async (_req, res) => {
+  const url = process.env.DATABASE_URL || '';
+  const out = {
+    database_url_present: !!url,
+    database_url_resolved: /^postgres(ql)?:\/\//.test(url),
+    database_url_starts: url.slice(0, 14),
+    db: null,
+    env: {
+      pinpay_secret: !!process.env.PINPAY_SECRET_KEY && !process.env.PINPAY_SECRET_KEY.startsWith('PENDENTE'),
+      webhook_secret: !!process.env.PINPAY_WEBHOOK_SECRET && !process.env.PINPAY_WEBHOOK_SECRET.startsWith('PENDENTE'),
+      webhook_url: !!process.env.PINPAY_WEBHOOK_URL,
+    },
+  };
+  try {
+    const r = await pool.query('SELECT 1 AS ok');
+    out.db = r.rows[0].ok === 1 ? 'ok' : 'unexpected';
+  } catch (e) {
+    out.db = String(e.message || e).replace(/:\/\/[^@\s]+@/, '://***@').slice(0, 240);
+  }
+  res.set('Cache-Control', 'no-store');
+  res.json(out);
+});
 
 app.get('/', (_req, res) => {
   if (process.env.STORE_ORIGIN) return res.redirect(302, process.env.STORE_ORIGIN);
