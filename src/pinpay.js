@@ -11,6 +11,7 @@ export class PinPayError extends Error {
     this.status = status;
     this.field = payload.field;
     this.requestId = payload.request_id;
+    this.payload = payload; // resposta crua da PinPay (sem segredos)
   }
 }
 

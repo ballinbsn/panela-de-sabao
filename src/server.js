@@ -174,10 +174,14 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
     console.error(JSON.stringify({ evt: 'pinpay_pix_failed', orderId, ...info }));
     await setStatusById(orderId, 'failed').catch(() => {});
 
+    // DEBUG temporário: mostra o motivo da PinPay (sem segredos). Remover depois.
+    const dbg = e instanceof PinPayError
+      ? { pp_status: e.status, pp_code: e.code, pp_field: e.field, pp_message: e.message, pp_request_id: e.requestId, pp_payload: e.payload }
+      : { js_error: String(e?.message || e) };
     if (e instanceof PinPayError && e.status === 422) {
-      return res.status(422).json({ error: 'payment_declined' });
+      return res.status(422).json({ error: 'payment_declined', _debug: dbg });
     }
-    return res.status(502).json({ error: 'gateway_error' });
+    return res.status(502).json({ error: 'gateway_error', _debug: dbg });
   }
 });
 
