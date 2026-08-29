@@ -159,16 +159,25 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
       checkoutUrl,
     });
 
-    await attachPix(orderId, pix);
-    console.log(JSON.stringify({ evt: 'pix_created', orderId, pinpayId: pix.id, kit: kit.id, amount: kit.amount }));
+    // A PinPay pode nomear os campos de formas diferentes — normalizamos aqui.
+    const qrText = pix.qr_code || pix.qr_code_text || pix.pix_code || pix.copy_paste || pix.brcode
+      || pix.emv || pix.payload || pix.qrcode || pix.qr_code_payload || null;
+    const qrImg = pix.qr_code_url || pix.qr_code_image || pix.qrcode_image_url || pix.qr_code_base64
+      || pix.image_url || pix.qr_image || null;
+    const expAt = pix.expires_at || pix.expiration_date || pix.expiresAt || pix.due_date || null;
+    const ppId = pix.id || pix.transaction_id || pix.charge_id || pix.pix_id || null;
+
+    await attachPix(orderId, { id: ppId, qr_code: qrText, qr_code_url: qrImg, expires_at: expAt });
+    console.log(JSON.stringify({ evt: 'pix_created', orderId, pinpayId: ppId, kit: kit.id, amount: kit.amount }));
 
     return res.status(201).json({
       order_id: orderId,
       amount: kit.amount,
       amount_brl: formatBRL(kit.amount),
-      qr_code: pix.qr_code,
-      qr_code_url: pix.qr_code_url,
-      expires_at: pix.expires_at,
+      qr_code: qrText,
+      qr_code_url: qrImg,
+      expires_at: expAt,
+      _pp_keys: Object.keys(pix || {}), // DEBUG: quais campos a PinPay devolveu. Remover depois.
     });
   } catch (e) {
     const info = e instanceof PinPayError
