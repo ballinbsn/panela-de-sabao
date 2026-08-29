@@ -1,4 +1,5 @@
 import express from 'express';
+import QRCode from 'qrcode';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -181,7 +182,7 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
       amount: kit.amount,
       amount_brl: formatBRL(kit.amount),
       qr_code: qrText,
-      qr_code_url: qrImg,
+      qr_png: `/api/qr/${orderId}.png`,
       expires_at: expAt,
     });
   } catch (e) {
@@ -195,6 +196,22 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
       return res.status(422).json({ error: 'payment_declined' });
     }
     return res.status(502).json({ error: 'gateway_error' });
+  }
+});
+
+// QR code do Pix gerado no servidor a partir do copia-e-cola (imagem própria, sem depender da PinPay)
+app.get('/api/qr/:id.png', async (req, res) => {
+  const id = String(req.params.id || '');
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).end();
+  const o = await getOrderPublic(id).catch(() => null);
+  if (!o || !o.qr_code) return res.status(404).end();
+  try {
+    const png = await QRCode.toBuffer(o.qr_code, { errorCorrectionLevel: 'M', margin: 1, width: 460 });
+    res.set('Content-Type', 'image/png');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(png);
+  } catch {
+    res.status(500).end();
   }
 });
 

@@ -44,6 +44,7 @@
   .p-emoji{flex:0 0 auto;width:56px;height:56px;border-radius:14px;background:var(--copper-soft);
     display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1}
   .p-name{font-weight:800;font-size:16px;line-height:1.25}
+  .product.destaque .p-name{padding-right:96px}
   .p-resumo{color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.4}
 
   .price{margin-top:14px;display:flex;align-items:baseline;flex-wrap:wrap;gap:8px}
@@ -461,7 +462,7 @@
     $('.lead') && ($('.lead').style.display = 'none');
     window.scrollTo(0, 0);
     $('#pix').style.display = 'block';
-    $('#qrimg').src = data.qr_code_url || '';
+    $('#qrimg').src = data.qr_png || data.qr_code_url || '';
     $('#qrimg').onerror = () => { $('#qrimg').style.display = 'none'; };
     $('#brcode').value = data.qr_code || '';
     $('#pix-amt').textContent = data.amount_brl || $('#pix-amt').textContent;
@@ -475,10 +476,14 @@
     });
 
     const expAt = data.expires_at ? new Date(data.expires_at).getTime() : Date.now() + 3600e3;
+    const fmt = (s) => {
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+      const p = (n) => String(n).padStart(2, '0');
+      return h > 0 ? `${h}h${p(m)}` : `${p(m)}:${p(sec)}`;
+    };
     tick = setInterval(() => {
       const left = Math.max(0, Math.floor((expAt - Date.now()) / 1000));
-      $('#timer').textContent =
-        String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
+      $('#timer').textContent = fmt(left);
       if (left <= 0) { stop(); $('#pix').style.display = 'none'; $('#expired').style.display = 'block'; }
     }, 1000);
 
