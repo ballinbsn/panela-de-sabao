@@ -23,15 +23,18 @@ export class PinPayError extends Error {
  * Cria uma cobrança PIX. Retenta em rede/429/5xx com a MESMA
  * Idempotency-Key (= orderId), então nunca cobra duas vezes.
  */
-export async function createPix({ amount, description, customer, orderId, webhookUrl }) {
+export async function createPix({ amount, description, customer, orderId, webhookUrl, checkoutUrl }) {
   const body = JSON.stringify({
     amount,
     description,
     customer,
     expires_in: 3600,
     webhook_url: webhookUrl,
-    // external_reference é obrigatório: id do pedido no nosso sistema.
-    metadata: { external_reference: orderId, order_id: orderId },
+    metadata: {
+      external_reference: orderId, // obrigatório: id do pedido no nosso sistema
+      checkout_url: checkoutUrl,    // obrigatório: origem do checkout
+      order_id: orderId,
+    },
   });
 
   const headers = {
@@ -63,11 +66,11 @@ export async function createPix({ amount, description, customer, orderId, webhoo
     if ((res.status === 429 || res.status >= 500) && attempt < 3) {
       const retryAfter = Number(res.headers.get('retry-after')) || attempt;
       await sleep(retryAfter * 1000);
-      lastError = new PinPayError(payload.error, res.status, payload);
+      lastError = new PinPayError(null, res.status, payload);
       continue;
     }
 
-    throw new PinPayError(payload.error, res.status, payload);
+    throw new PinPayError(null, res.status, payload);
   }
   throw lastError;
 }
@@ -79,7 +82,7 @@ export async function getPix(pixId) {
   });
   if (!res.ok) {
     const payload = await res.json().catch(() => ({}));
-    throw new PinPayError(payload.error, res.status, payload);
+    throw new PinPayError(null, res.status, payload);
   }
   return res.json();
 }

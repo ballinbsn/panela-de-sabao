@@ -134,6 +134,8 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
   if (!ok) return res.status(400).json({ error: 'validation_error', fields: errors });
 
   const orderId = randomUUID();
+  const base = `${req.protocol}://${req.get('host')}`;
+  const checkoutUrl = `${base}/checkout?kit=${kit.id}`;
 
   try {
     await createOrder({ ...value, id: orderId });
@@ -154,6 +156,7 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
       },
       orderId,
       webhookUrl: process.env.PINPAY_WEBHOOK_URL,
+      checkoutUrl,
     });
 
     await attachPix(orderId, pix);
