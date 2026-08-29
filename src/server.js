@@ -159,13 +159,14 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
       checkoutUrl,
     });
 
-    // A PinPay pode nomear os campos de formas diferentes — normalizamos aqui.
-    const qrText = pix.qr_code || pix.qr_code_text || pix.pix_code || pix.copy_paste || pix.brcode
-      || pix.emv || pix.payload || pix.qrcode || pix.qr_code_payload || null;
-    const qrImg = pix.qr_code_url || pix.qr_code_image || pix.qrcode_image_url || pix.qr_code_base64
-      || pix.image_url || pix.qr_image || null;
-    const expAt = pix.expires_at || pix.expiration_date || pix.expiresAt || pix.due_date || null;
-    const ppId = pix.id || pix.transaction_id || pix.charge_id || pix.pix_id || null;
+    // A PinPay aninha os dados do PIX em `pix.pix`.
+    const p = pix.pix || pix;
+    const qrText = p.qr_code || p.qr_code_text || p.pix_code || p.copy_paste || p.brcode
+      || p.emv || p.payload || p.qrcode || p.qr_code_payload || p.code || null;
+    const qrImg = p.qr_code_url || p.qr_code_image || p.qrcode_image_url || p.qr_code_base64
+      || p.image_url || p.qr_image || p.qr_code_base64_image || null;
+    const expAt = p.expires_at || pix.expires_at || p.expiration_date || p.due_date || null;
+    const ppId = pix.id || pix.transaction_id || p.id || null;
 
     await attachPix(orderId, { id: ppId, qr_code: qrText, qr_code_url: qrImg, expires_at: expAt });
     console.log(JSON.stringify({ evt: 'pix_created', orderId, pinpayId: ppId, kit: kit.id, amount: kit.amount }));
@@ -177,7 +178,7 @@ app.post('/api/pay', rateLimit({ windowMs: 60_000, max: 12 }), express.json({ li
       qr_code: qrText,
       qr_code_url: qrImg,
       expires_at: expAt,
-      _pp_keys: Object.keys(pix || {}), // DEBUG: quais campos a PinPay devolveu. Remover depois.
+      _pp_debug: { top: Object.keys(pix || {}), pix_obj: pix.pix, status: pix.status }, // DEBUG. Remover depois.
     });
   } catch (e) {
     const info = e instanceof PinPayError
