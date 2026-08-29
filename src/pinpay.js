@@ -5,13 +5,17 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export class PinPayError extends Error {
   constructor(code, status, payload = {}) {
-    super(payload.message || code || 'pinpay_error');
+    // A PinPay responde { error: { code, message } } (aninhado) ou { error, message } (plano).
+    const nested = payload.error && typeof payload.error === 'object' ? payload.error : null;
+    const realCode = code || nested?.code || payload.error || 'pinpay_error';
+    const realMsg = nested?.message || payload.message || realCode;
+    super(realMsg);
     this.name = 'PinPayError';
-    this.code = code || payload.error || 'pinpay_error';
+    this.code = typeof realCode === 'string' ? realCode : 'pinpay_error';
     this.status = status;
-    this.field = payload.field;
-    this.requestId = payload.request_id;
-    this.payload = payload; // resposta crua da PinPay (sem segredos)
+    this.field = nested?.field || payload.field;
+    this.requestId = payload.request_id || nested?.request_id;
+    this.payload = payload;
   }
 }
 
@@ -26,7 +30,8 @@ export async function createPix({ amount, description, customer, orderId, webhoo
     customer,
     expires_in: 3600,
     webhook_url: webhookUrl,
-    metadata: { order_id: orderId },
+    // external_reference é obrigatório: id do pedido no nosso sistema.
+    metadata: { external_reference: orderId, order_id: orderId },
   });
 
   const headers = {
