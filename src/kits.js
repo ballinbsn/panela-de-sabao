@@ -56,6 +56,7 @@ export function kitView(kit) {
     nome: kit.nome,
     resumo: kit.resumo,
     emoji: kit.emoji || '🛒',
+    img: `/assets/kits/${kit.id}.webp`,
     unidades: kit.unidades || 1,
     selo: kit.selo || null,
     destaque: !!kit.destaque,

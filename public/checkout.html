@@ -41,8 +41,9 @@
     color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:5px 12px;
     border-bottom-left-radius:12px}
   .p-top{display:flex;gap:13px;align-items:center}
-  .p-emoji{flex:0 0 auto;width:56px;height:56px;border-radius:14px;background:var(--copper-soft);
-    display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1}
+  .p-emoji{flex:0 0 auto;width:72px;height:72px;border-radius:14px;background:var(--copper-soft);
+    display:flex;align-items:center;justify-content:center;font-size:34px;line-height:1;overflow:hidden}
+  .p-emoji img{width:100%;height:100%;object-fit:cover;display:block}
   .p-name{font-weight:800;font-size:16px;line-height:1.25}
   .product.destaque .p-name{padding-right:96px}
   .p-resumo{color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.4}
@@ -109,8 +110,16 @@
   /* ---------- tela do PIX ---------- */
   #pix,#paid,#expired{display:none}
   #pix{text-align:center}
+  .pix-item{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--r-sm);box-shadow:var(--shadow);padding:10px 12px;margin:12px 0 0;text-align:left}
+  .pi-thumb{flex:0 0 auto;width:46px;height:46px;border-radius:10px;background:var(--copper-soft);
+    display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
+  .pi-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .pi-txt{display:flex;flex-direction:column;line-height:1.3}
+  .pi-txt b{font-size:13.5px}
+  .pi-txt span{font-size:12.5px;color:var(--muted)}
   .qrcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-    box-shadow:var(--shadow);padding:18px;margin:14px 0}
+    box-shadow:var(--shadow);padding:18px;margin:12px 0}
   .qrcard img{width:232px;height:232px;image-rendering:pixelated;border-radius:8px}
   .qrcard .amt{font-size:24px;font-weight:800;color:var(--stone);margin-top:4px}
   .copy-wrap{display:flex;gap:8px;margin-top:6px}
@@ -149,7 +158,7 @@
   <section class="product" id="product" hidden>
     <span class="selo" id="p-selo" hidden></span>
     <div class="p-top">
-      <div class="p-emoji" id="p-emoji">🛒</div>
+      <div class="p-emoji" id="p-emoji"><span id="p-emoji-fb">🍲</span></div>
       <div>
         <div class="p-name" id="p-name">—</div>
         <div class="p-resumo" id="p-resumo"></div>
@@ -262,6 +271,10 @@
   <section id="pix">
     <h1>Escaneie e pague ⚡</h1>
     <p class="lead">Abra o app do seu banco → Pix → Ler QR Code. Ou use o código copia e cola.</p>
+    <div class="pix-item" id="pix-item">
+      <div class="pi-thumb" id="pi-thumb"><span>🍲</span></div>
+      <div class="pi-txt"><b id="pi-name">—</b><span id="pi-amt"></span></div>
+    </div>
     <div class="qrcard">
       <img id="qrimg" alt="QR Code do Pix" />
       <div class="amt" id="pix-amt"></div>
@@ -306,14 +319,22 @@
   const form = $('#form');
   const formErr = $('#formerr');
   const digits = (v) => String(v).replace(/\D/g, '');
+  let kitData = null;
 
   // ---------- resumo do kit ----------
   fetch('/api/kit/' + encodeURIComponent(kitId))
     .then((r) => (r.ok ? r.json() : Promise.reject()))
     .then((k) => {
+      kitData = k;
       document.title = k.nome + ' — Naturalli';
       $('#h-title').textContent = 'Finalizar: ' + k.nome;
-      $('#p-emoji').textContent = k.emoji;
+      if (k.emoji) $('#p-emoji-fb').textContent = k.emoji;
+      if (k.img) {
+        const im = new Image();
+        im.alt = k.nome;
+        im.onload = () => { $('#p-emoji').innerHTML = ''; $('#p-emoji').appendChild(im); };
+        im.src = k.img; // se falhar, fica o emoji
+      }
       $('#p-name').textContent = k.nome;
       $('#p-resumo').textContent = k.resumo;
       $('#p-now').textContent = k.amount_brl;
@@ -466,6 +487,18 @@
     $('#qrimg').onerror = () => { $('#qrimg').style.display = 'none'; };
     $('#brcode').value = data.qr_code || '';
     $('#pix-amt').textContent = data.amount_brl || $('#pix-amt').textContent;
+
+    if (kitData) {
+      $('#pi-name').textContent = kitData.nome;
+      $('#pi-amt').textContent = (data.amount_brl || kitData.amount_brl) + ' · no Pix';
+      if (kitData.emoji) $('#pi-thumb').firstElementChild.textContent = kitData.emoji;
+      if (kitData.img) {
+        const t = new Image();
+        t.alt = kitData.nome;
+        t.onload = () => { $('#pi-thumb').innerHTML = ''; $('#pi-thumb').appendChild(t); };
+        t.src = kitData.img;
+      }
+    }
 
     $('#copy').addEventListener('click', async () => {
       const btn = $('#copy');
